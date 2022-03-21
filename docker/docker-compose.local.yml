@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  ping:
+    container_name: ping-server
+    #image: ping_server:v1
+    build:
+      context: ./../
+      dockerfile: ./docker/ping-local.dockerfile
+      args:
+        ENV: local
+    ports:
+      - 3050:8080
+    volumes:
+      - "./../src:/app/code/src"
+      - "./../docker/env/ping-local.env:/app/code/.env"
+    networks:
+      ping:
+        ipv4_address: 172.1.0.3
+    links:
+      - db
+  db:
+    hostname: db.excell.docker
+    image: 'mysql:5.7.35'
+    container_name: ping-db
+    shm_size: 2gb
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_MAINT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - "./mysql-data:/var/lib/mysql"
+      - "./init-scripts:/docker-entrypoint-initdb.d"
+    networks:
+      ping:
+        ipv4_address: 172.1.0.5
+
+networks:
+  ping:
+    external: false
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.1.0.0/16
+          gateway: 172.1.0.1
