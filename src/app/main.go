@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/MKwann7/server-ping-portal/src/app/controllers/api/ping"
 	"github.com/MKwann7/server-ping-portal/src/app/controllers/healthcheck"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
