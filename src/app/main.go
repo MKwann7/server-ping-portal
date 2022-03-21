@@ -1,7 +1,7 @@
 package main
 
 import (
-	"app/controllers/healthcheck"
+	"github.com/MKwann7/server-ping-portal/src/app/controllers/healthcheck"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"

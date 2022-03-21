@@ -1,7 +1,7 @@
 package healthcheck
 
 import (
-	"app/libraries/helper"
+	"github.com/MKwann7/server-ping-portal/src/app/libraries/helper"
 	"net/http"
 )
 
