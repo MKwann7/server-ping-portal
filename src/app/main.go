@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MKwann7/server-ping-portal/src/app/controllers/api/ping"
 	"github.com/MKwann7/server-ping-portal/src/app/controllers/healthcheck"
+	"github.com/MKwann7/server-ping-portal/src/app/libraries/auth"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
@@ -66,11 +67,10 @@ func corseHandler(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-func validateAuth(f func(responseWriter http.ResponseWriter, request *http.Request)) func(http.ResponseWriter, *http.Request)  {
+func validateAuth(f func(responseWriter http.ResponseWriter, webRequest *http.Request)) func(http.ResponseWriter, *http.Request)  {
 
+	user, validationError := auth.ValidateJwt(webRequest)
 
-	//user, validationError := validateAuth(webRequest)
-	//
 	//if validationError != nil {
 	//	errorManagement.HandleErr(responseWriter, validationError, http.StatusBadRequest)
 	//	log.Println(validationError.Error())

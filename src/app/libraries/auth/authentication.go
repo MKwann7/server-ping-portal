@@ -1,5 +1,5 @@
 package auth
 
-func ValidateConnection() {
+func ValidateJwt() {
 
 }
