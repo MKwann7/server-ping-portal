@@ -44,6 +44,10 @@ func router() *mux.Router {
 		Methods("GET").
 		Path("/health-check").
 		HandlerFunc(healthcheck.HandleHealthCheck)
+	router.
+		Methods("GET").
+		Path("/api/v1/ping/server").
+		HandlerFunc(validateAuth(ping.HandleServerRequest))
 
 	return router
 }
@@ -59,4 +63,19 @@ func corseHandler(handler http.Handler) http.HandlerFunc {
 			handler.ServeHTTP(responseWriter,webRequest)
 		}
 	}
+}
+
+func validateAuth(f func(responseWriter http.ResponseWriter, request *http.Request)) func(http.ResponseWriter, *http.Request)  {
+
+
+	//user, validationError := validateAuth(webRequest)
+	//
+	//if validationError != nil {
+	//	errorManagement.HandleErr(responseWriter, validationError, http.StatusBadRequest)
+	//	log.Println(validationError.Error())
+	//	return
+	//}
+
+	return f
+
 }
