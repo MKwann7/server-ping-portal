@@ -1,7 +1,7 @@
-package healthcheck
+package controllers
 
 import (
-	"github.com/MKwann7/server-ping-portal/src/app/libraries/helper"
+	"github.com/MKwann7/server-ping-portal/app/core/src/code/libraries/helper"
 	"net/http"
 )
 

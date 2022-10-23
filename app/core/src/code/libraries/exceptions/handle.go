@@ -1,4 +1,4 @@
-package errorManagement
+package exceptions
 
 import (
 	"encoding/json"

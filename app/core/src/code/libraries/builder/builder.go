@@ -1,7 +1,8 @@
 package builder
 
 import (
-	"github.com/MKwann7/server-ping-portal/src/app/libraries/db"
+	"errors"
+	"github.com/MKwann7/server-ping-portal/app/core/src/code/libraries/db"
 	"github.com/google/uuid"
 	"reflect"
 	"strconv"
@@ -21,10 +22,15 @@ func (builder *Builder) GetById(entityId int, connection db.Connection, model re
 }
 
 func (builder *Builder) GetByUuid(entityUuid uuid.UUID, connection db.Connection, model reflect.Type) (map[string]interface{}, error) {
+
 	entityCollection, error := builder.GetWhere(connection, model, connection.UuidKey+" = '"+entityUuid.String()+"'", "ASC", 1)
 
 	if error != nil {
 		return nil, error
+	}
+
+	if len(entityCollection) == 0 {
+		return nil, errors.New("no entity was found by that uuid")
 	}
 
 	return entityCollection[0], nil
@@ -32,9 +38,22 @@ func (builder *Builder) GetByUuid(entityUuid uuid.UUID, connection db.Connection
 
 func (builder *Builder) GetWhere(connection db.Connection, model reflect.Type, whereClause string, sort string, limit int) ([]map[string]interface{}, error) {
 	switch connection.DbType {
-	case "postgres":
-		return db.PostgresGetWhere(connection, model, whereClause, sort, limit)
+	case "extensions":
+		return db.PostgresGetWhere(connection, whereClause, sort, limit)
 	default:
-		return db.MysqlGetWhere(connection, model, whereClause, sort, limit)
+		return db.MysqlGetWhere(connection, whereClause, sort, limit)
 	}
+}
+
+func (builder *Builder) CreateNew(model []db.SqlExecModel, connection db.Connection) (map[string]interface{}, error) {
+	var models []map[string]interface{}
+	var err error
+
+	models, err = db.MysqlCreateNew(connection, model)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return models[0], nil
 }

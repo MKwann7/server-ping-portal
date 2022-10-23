@@ -2,6 +2,9 @@ package db
 
 import (
 	"os"
+	"reflect"
+	"regexp"
+	"strings"
 )
 
 type Connection struct {
@@ -56,4 +59,40 @@ func (connection *Connection) GetNotification(tableName string, userKey string, 
 		os.Getenv("NOTIFY_DB_USER"),
 		os.Getenv("NOTIFY_DB_PASS"),
 		Postgres}
+}
+
+type SqlExecModel struct {
+	Field string
+	Type  reflect.Kind
+	Value reflect.Value
+}
+
+func MakeSqlExecModel(myStructFields reflect.Type, myStructValues reflect.Value, indexField string) []SqlExecModel {
+
+	num := myStructFields.NumField()
+
+	var myModel []SqlExecModel
+
+	for i := 0; i < num; i++ {
+		field := myStructFields.Field(i)
+		value := myStructValues.Field(i)
+
+		currFieldName := convertToSqlField(field.Name)
+
+		if currFieldName != indexField {
+			sqlExecModel := SqlExecModel{Field: convertToSqlField(field.Name), Type: value.Kind(), Value: value}
+			myModel = append(myModel, sqlExecModel)
+		}
+	}
+
+	return myModel
+}
+
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
+
+func convertToSqlField(fieldName string) string {
+	snake := matchFirstCap.ReplaceAllString(fieldName, "${1}_${2}")
+	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+	return strings.ToLower(snake)
 }

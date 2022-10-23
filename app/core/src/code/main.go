@@ -1,9 +1,7 @@
 package main
 
 import (
-	"github.com/MKwann7/server-ping-portal/src/app/controllers/api/ping"
-	"github.com/MKwann7/server-ping-portal/src/app/controllers/healthcheck"
-	"github.com/MKwann7/server-ping-portal/src/app/libraries/auth"
+	"github.com/MKwann7/server-ping-portal/app/core/src/code/controllers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
@@ -45,38 +43,40 @@ func router() *mux.Router {
 	router.
 		Methods("GET").
 		Path("/health-check").
-		HandlerFunc(healthcheck.HandleHealthCheck)
+		HandlerFunc(controllers.HandleHealthCheck)
 	router.
 		Methods("GET").
 		Path("/api/v1/ping/server").
-		HandlerFunc(validateAuth(ping.HandleServerRequest))
+		HandlerFunc(controllers.HandleServerRequest)
 
 	return router
 }
 
 func corseHandler(handler http.Handler) http.HandlerFunc {
 	return func(responseWriter http.ResponseWriter, webRequest *http.Request) {
-		if webRequest.Method == "OPTIONS" {
-			responseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Methods")
-			responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
-			responseWriter.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
-			responseWriter.Header().Set("Content-Type", "application/json charset=utf-8")
-		} else {
-			handler.ServeHTTP(responseWriter,webRequest)
+		setHeaders(responseWriter)
+		if webRequest.Method != "OPTIONS" {
+			handler.ServeHTTP(responseWriter, webRequest)
 		}
 	}
 }
 
-func validateAuth(f func(responseWriter http.ResponseWriter, webRequest *http.Request)) func(http.ResponseWriter, *http.Request)  {
-
-	user, validationError := auth.ValidateJwt(webRequest)
-
-	//if validationError != nil {
-	//	errorManagement.HandleErr(responseWriter, validationError, http.StatusBadRequest)
-	//	log.Println(validationError.Error())
-	//	return
-	//}
-
-	return f
-
+func setHeaders(responseWriter http.ResponseWriter) {
+	responseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Methods")
+	responseWriter.Header().Set("Access-Control-Allow-Origin", "*")
+	responseWriter.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
 }
+
+//func validateAuth(f func(responseWriter http.ResponseWriter, webRequest *http.Request)) func(http.ResponseWriter, *http.Request)  {
+//
+//	user, validationError := auth.ValidateJwt(webRequest)
+//
+//	//if validationError != nil {
+//	//	errorManagement.HandleErr(responseWriter, validationError, http.StatusBadRequest)
+//	//	log.Println(validationError.Error())
+//	//	return
+//	//}
+//
+//	return f
+//
+//}
